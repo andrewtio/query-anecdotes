@@ -1,7 +1,10 @@
-const AnecdoteForm = (newAnecdoteMutation) => {
+const AnecdoteForm = ({ newAnecdoteMutation }) => {
   const onCreate = (event) => {
     event.preventDefault();
     const content = event.target.anecdote.value;
+    if (content < 5) {
+      return <div>Must be at least 5 characters long</div>;
+    }
     event.target.anecdote.value = "";
     newAnecdoteMutation.mutate({ content, votes: 0 });
   };
