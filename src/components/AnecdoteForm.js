@@ -6,11 +6,29 @@ const AnecdoteForm = ({ newAnecdoteMutation, notificationDispatch }) => {
       return <div>Must be at least 5 characters long</div>;
     }
     event.target.anecdote.value = "";
-    newAnecdoteMutation.mutate({ content, votes: 0 });
-    notificationDispatch({ type: "CREATE", data: content });
-    setTimeout(() => {
-      notificationDispatch({ type: "HIDE" });
-    }, 5000);
+    newAnecdoteMutation.mutate(
+      { content, votes: 0 },
+      {
+        onSuccess: () => {
+          notificationDispatch({
+            type: "SHOW",
+            data: `"Anecdote ${content} created"`,
+          });
+          setTimeout(() => {
+            notificationDispatch({ type: "HIDE" });
+          }, 5000);
+        },
+        onError: () => {
+          notificationDispatch({
+            type: "SHOW",
+            data: "too short anecdote, must have length 5 or more",
+          });
+          setTimeout(() => {
+            notificationDispatch({ type: "HIDE" });
+          }, 5000);
+        },
+      }
+    );
   };
 
   return (

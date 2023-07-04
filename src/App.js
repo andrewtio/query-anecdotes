@@ -6,10 +6,8 @@ import Notification from "./components/Notification";
 
 const notificationReducer = (state, action) => {
   switch (action.type) {
-    case "CREATE":
-      return "anecdote '" + action.data + "' created";
-    case "VOTE":
-      return "anecdote '" + action.data + "' voted";
+    case "SHOW":
+      return action.data;
     case "HIDE":
       return null;
     default:
@@ -46,7 +44,10 @@ const App = () => {
 
   const handleVote = (anecdote) => {
     updateAnecdoteMutation.mutate({ ...anecdote, votes: anecdote.votes + 1 });
-    notificationDispatch({ type: "VOTE", data: anecdote.content });
+    notificationDispatch({
+      type: "SHOW",
+      data: `"Anecdote ${anecdote.content} voted`,
+    });
     setTimeout(() => {
       notificationDispatch({ type: "HIDE" });
     }, 5000);
