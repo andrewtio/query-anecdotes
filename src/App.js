@@ -1,9 +1,28 @@
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { getAnecdotes, createAnecdote, updateAnecdote } from "./requests";
+import { useReducer } from "react";
 import AnecdoteForm from "./components/AnecdoteForm";
 import Notification from "./components/Notification";
 
+const notificationReducer = (state, action) => {
+  switch (action.type) {
+    case "CREATE":
+      return "anecdote '" + action.data + "' created";
+    case "VOTE":
+      return "anecdote '" + action.data + "' voted";
+    case "HIDE":
+      return null;
+    default:
+      return state;
+  }
+};
+
 const App = () => {
+  const [notification, notificationDispatch] = useReducer(
+    notificationReducer,
+    ""
+  );
+
   const queryClient = useQueryClient();
 
   const newAnecdoteMutation = useMutation(createAnecdote, {
@@ -27,6 +46,10 @@ const App = () => {
 
   const handleVote = (anecdote) => {
     updateAnecdoteMutation.mutate({ ...anecdote, votes: anecdote.votes + 1 });
+    notificationDispatch({ type: "VOTE", data: anecdote.content });
+    setTimeout(() => {
+      notificationDispatch({ type: "HIDE" });
+    }, 5000);
   };
 
   if (result.isLoading) {
@@ -43,8 +66,11 @@ const App = () => {
     <div>
       <h3>Anecdote app</h3>
 
-      <Notification />
-      <AnecdoteForm newAnecdoteMutation={newAnecdoteMutation} />
+      <Notification notification={notification} />
+      <AnecdoteForm
+        newAnecdoteMutation={newAnecdoteMutation}
+        notificationDispatch={notificationDispatch}
+      />
 
       {anecdotes.map((anecdote) => (
         <div key={anecdote.id}>

@@ -1,4 +1,4 @@
-const AnecdoteForm = ({ newAnecdoteMutation }) => {
+const AnecdoteForm = ({ newAnecdoteMutation, notificationDispatch }) => {
   const onCreate = (event) => {
     event.preventDefault();
     const content = event.target.anecdote.value;
@@ -7,6 +7,10 @@ const AnecdoteForm = ({ newAnecdoteMutation }) => {
     }
     event.target.anecdote.value = "";
     newAnecdoteMutation.mutate({ content, votes: 0 });
+    notificationDispatch({ type: "CREATE", data: content });
+    setTimeout(() => {
+      notificationDispatch({ type: "HIDE" });
+    }, 5000);
   };
 
   return (
