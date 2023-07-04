@@ -1,27 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { getAnecdotes, createAnecdote, updateAnecdote } from "./requests";
-import { useReducer } from "react";
 import AnecdoteForm from "./components/AnecdoteForm";
 import Notification from "./components/Notification";
-
-const notificationReducer = (state, action) => {
-  switch (action.type) {
-    case "SHOW":
-      return action.data;
-    case "HIDE":
-      return null;
-    default:
-      return state;
-  }
-};
+import { useNotificationDispatch } from "./NotificationContext";
 
 const App = () => {
-  const [notification, notificationDispatch] = useReducer(
-    notificationReducer,
-    ""
-  );
-
   const queryClient = useQueryClient();
+  const notificationDispatch = useNotificationDispatch();
 
   const newAnecdoteMutation = useMutation(createAnecdote, {
     onSuccess: (newAnecdote) => {
@@ -46,7 +31,7 @@ const App = () => {
     updateAnecdoteMutation.mutate({ ...anecdote, votes: anecdote.votes + 1 });
     notificationDispatch({
       type: "SHOW",
-      data: `"Anecdote ${anecdote.content} voted`,
+      data: `Anecdote "${anecdote.content}" voted`,
     });
     setTimeout(() => {
       notificationDispatch({ type: "HIDE" });
@@ -67,21 +52,20 @@ const App = () => {
     <div>
       <h3>Anecdote app</h3>
 
-      <Notification notification={notification} />
-      <AnecdoteForm
-        newAnecdoteMutation={newAnecdoteMutation}
-        notificationDispatch={notificationDispatch}
-      />
+      <Notification />
+      <AnecdoteForm newAnecdoteMutation={newAnecdoteMutation} />
 
-      {anecdotes.map((anecdote) => (
-        <div key={anecdote.id}>
-          <div>{anecdote.content}</div>
-          <div>
-            has {anecdote.votes}
-            <button onClick={() => handleVote(anecdote)}>vote</button>
+      {anecdotes
+        .map((anecdote) => (
+          <div key={anecdote.id}>
+            <div>{anecdote.content}</div>
+            <div>
+              has {anecdote.votes}
+              <button onClick={() => handleVote(anecdote)}>vote</button>
+            </div>
           </div>
-        </div>
-      ))}
+        ))
+        .sort((a, b) => b.votes - a.votes)}
     </div>
   );
 };

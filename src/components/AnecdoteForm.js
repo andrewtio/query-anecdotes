@@ -1,4 +1,8 @@
-const AnecdoteForm = ({ newAnecdoteMutation, notificationDispatch }) => {
+import { useContext } from "react";
+import NotificationContext from "../NotificationContext";
+
+const AnecdoteForm = ({ newAnecdoteMutation }) => {
+  const [notification, dispatch] = useContext(NotificationContext);
   const onCreate = (event) => {
     event.preventDefault();
     const content = event.target.anecdote.value;
@@ -10,21 +14,21 @@ const AnecdoteForm = ({ newAnecdoteMutation, notificationDispatch }) => {
       { content, votes: 0 },
       {
         onSuccess: () => {
-          notificationDispatch({
+          dispatch({
             type: "SHOW",
-            data: `"Anecdote ${content} created"`,
+            data: `Anecdote "${content}" created`,
           });
           setTimeout(() => {
-            notificationDispatch({ type: "HIDE" });
+            dispatch({ type: "HIDE" });
           }, 5000);
         },
         onError: () => {
-          notificationDispatch({
+          dispatch({
             type: "SHOW",
             data: "too short anecdote, must have length 5 or more",
           });
           setTimeout(() => {
-            notificationDispatch({ type: "HIDE" });
+            dispatch({ type: "HIDE" });
           }, 5000);
         },
       }
